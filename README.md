@@ -83,7 +83,7 @@ http://localhost:3000 (or 5173 depending on setup)
 | Method | Endpoint               | Description             |
 | ------ | ---------------------- | ----------------------- |
 | GET    | /employees             | Fetch all employees     |
-| GET    | /employees/:id         | Fetch a single employee |
+| GET    | /employees/:employeeId | Fetch a single employee |
 | POST   | /employees             | Create a new employee   |
 | PUT    | /employees/:employeeId | Update an employee      |
 | DELETE | /employees/:employeeId | Delete an employee      |
