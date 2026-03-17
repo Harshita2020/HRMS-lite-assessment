@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 
 const EditEmployeeForm = ({ onEdit,  employee }) => {
-  console.log("EMPLOYEE====> ", employee);
-  console.log("emp id=======> ", employee.id)
   const [formData, setFormData] = useState({
     fullName: employee.name || "",
     department: employee.dept || "",
@@ -22,7 +20,7 @@ const EditEmployeeForm = ({ onEdit,  employee }) => {
     e.preventDefault();
 
     const newEmployee = {
-      id: employee.id,
+      employeeId: employee.employeeId,
       name: formData.fullName,
       age: Number(formData.age),
       salary: Number(formData.salary),

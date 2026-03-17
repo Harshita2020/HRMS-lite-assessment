@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 
-const AddEmployeeForm = ({ onAdd }) => {
+const AddEmployeeForm = ({ onAdd, length }) => {
+  console.log("LENGTH??? ", length);
   const [formData, setFormData] = useState({
-    fullName: "",
-    department: "",
-    age: 0,
-    salary: 0,
+    employeeId: length ? length + 1 : 21,
+    fullName: `Temp ${length ? length + 1 : 21}`,
+    age: 14,
+    department: "Employee",
+    salary: 10000,
   });
 
   const handleChange = (e) => {
@@ -20,20 +22,22 @@ const AddEmployeeForm = ({ onAdd }) => {
     e.preventDefault();
 
     const newEmployee = {
-      id: Date.now(),
+      employeeId: formData.employeeId,
       name: formData.fullName,
       age: Number(formData.age),
       salary: Number(formData.salary),
       dept: formData.department,
+      email: `demo${formData.employeeId}@company.com`,
     };
 
     onAdd(newEmployee);
 
     setFormData({
-      fullName: "",
-      age: 0,
-      department: "",
-      salary: 0,
+      employeeId: length ? length + 1 : 11,
+      fullName: "Temp",
+      age: 14,
+      department: "Employee",
+      salary: 10000,
     });
   };
 

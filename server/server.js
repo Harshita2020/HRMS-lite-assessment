@@ -1,57 +1,48 @@
 import express, { json } from "express";
 import cors from "cors";
+import dotenv from "dotenv";
+import connectDB from "./config/db.js";
+import Employee from "./models/Employee.js";
+
+dotenv.config();
 
 const app = express();
+const startServer = async () => {
+  await connectDB();
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+};
+
 app.use(cors());
 app.use(express.json());
 
-const employees = [
-  {
-    id: 1,
-    name: "Harshita",
-    age: 24,
-    dept: "IT",
-    salary: 180000,
-    promote: true,
-  },
-  {
-    id: 2,
-    name: "Harshita",
-    age: 24,
-    dept: "IT",
-    salary: 180000,
-    promote: true,
-  },
-
-  {
-    id: 3,
-    name: "Harshita",
-    age: 24,
-    dept: "IT",
-    salary: 180000,
-    promote: true,
-  },
-  {
-    id: 4,
-    name: "Harshita",
-    age: 24,
-    dept: "IT",
-    salary: 180000,
-    promote: true,
-  },
-];
+const PORT = process.env.PORT || 3000;
 
 //GET
-app.get("/employees", (req, res) => {
-  res.json(employees);
+
+app.get("/employees", async (req, res) => {
+  try {
+    const employeess = await Employee.find();
+    res.status(200).json({
+      success: true,
+      data: employeess,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch employees",
+      error: error.message,
+    });
+  }
 });
 
 //GET ONE
-app.get("/employees/:id", (req, res) => {
-  const id = Number(req.params.id);
+app.get("/employees/:employeeId", async (req, res) => {
+  const id = Number(req.params.employeeId);
 
-  let found = employees.find((e) => e.id === id);
-  console.log("FOUND- ", found);
+  let found = await Employee.findOne({ employeeId: id });
   if (!found) {
     return res.status(404).json({ message: "404 Not Found!" });
   }
@@ -59,42 +50,56 @@ app.get("/employees/:id", (req, res) => {
 });
 
 //POST
-app.post("/employees", (req, res) => {
-  employees.push(req.body);
-  res.json({ success: true });
-});
 
-//PUT
-app.put("/employees/:id", (req, res) => {
-  const id = Number(req.params.id);
+app.post("/employees", async (req, res) => {
+  try {
+    const employee = new Employee(req.body);
+    const savedEmployee = await employee.save();
 
-  let index = employees.findIndex((e) => e.id === id);
-  if (index === -1) {
-    return res.status(404).json({ message: "404 not index!" });
-  } else {
-    let newEmp = { ...employees[index], ...req.body, id: id }; //do the magic here
-    console.log("NEW EMP = ", newEmp);
-    employees[index] = newEmp;
-    res.send(newEmp);
+    res.status(201).json({
+      success: true,
+      message: "Employee created successfully!",
+      data: savedEmployee,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to create employee",
+      error: error.message,
+    });
   }
 });
 
-//DELETE
-app.delete("/employees/:id", (req, res) => {
-  const id = Number(req.params.id);
+// //PUT
+app.put("/employees/:employeeId", async (req, res) => {
+  const id = Number(req.params.employeeId);
 
-  let index = employees.findIndex((e) => e.id === id);
-  console.log("index to delete- ", index);
-  if (index === -1) {
+  let updatedEmployeeData = await Employee.findOneAndUpdate(
+    { employeeId: id },
+    req.body,
+    { returnDocument: "after" },
+  );
+  if (!updatedEmployeeData) {
     return res.status(404).json({ message: "404 not found!" });
+  } else {
+    return res
+      .status(200)
+      .json({ message: "Employee Data Updated Successfully!!" });
   }
-
-  employees.splice(index, 1);
-  return res
-    .status(200)
-    .json({ message: "Employee record deleted successfully!" });
 });
 
-app.listen(3000, () => {
-  console.log("Server running on port- 3000");
+// //DELETE
+app.delete("/employees/:employeeId", async (req, res) => {
+  const id = Number(req.params.employeeId);
+  let deletedEmployeeData = await Employee.findOneAndDelete({ employeeId: id });
+
+  if (!deletedEmployeeData) {
+    return res.status(404).json({ message: "404 not found!" });
+  } else {
+    return res
+      .status(200)
+      .json({ message: "Employee record deleted successfully!" });
+  }
 });
+
+startServer();

@@ -13,9 +13,16 @@ const EmployeesList = () => {
   useEffect(() => {
     fetch("http://localhost:3000/employees")
       .then((res) => res.json())
-      .then((d) => setData(d))
-      .catch((err) => console.log("ERROR!!!", err));
+      .then((d) => setData(d.data))
+      .catch((err) => console.error("ERROR!!!", err));
   }, []);
+  const fetchData = () => {
+    fetch("http://localhost:3000/employees")
+    .then((res) => res.json())
+    .then((d) => setData(d.data))
+    .catch((err) => console.error("ERROR!!!", err));
+  };
+
 
   const handleDelete = async (id) => {
     try {
@@ -24,10 +31,10 @@ const EmployeesList = () => {
       });
 
       if (res.ok) {
-        setData((prev) => prev.filter((emp) => emp.id !== id));
+        setData((prev) => prev.filter((emp) => emp.employeeId !== id));
       }
     } catch (err) {
-      console.log("Delete failed", err);
+      console.error("Delete failed", err);
     }
   };
 
@@ -42,21 +49,19 @@ const EmployeesList = () => {
       });
 
       if (res.ok) {
+        
         setData((prev) => [...prev, newEmployee]);
         setShowForm(false);
+        fetchData();
       }
     } catch (err) {
-      console.log("Add failed", err);
+      console.error("Add failed", err);
     }
   };
 
   const handleUpdate = async (newEmployee) => {
-    console.log("ID=====> ", employee.id);
     try {
-      const id = employee.id;
-      console.log("Updating...", `http://localhost:3000/employees/${id}`)
-      console.log("ID============================== ", id)
-      console.log("Payload================= ", newEmployee)
+      const id = employee.employeeId;
       const res = await fetch(`http://localhost:3000/employees/${id}`, {
         method: "PUT",
         headers: {
@@ -66,14 +71,16 @@ const EmployeesList = () => {
       });
 
       if (res.ok) {
-        setData((prev) => prev.map((emp) => emp.id === id ? newEmployee : emp))
+        setData((prev) =>
+          prev.map((emp) => (emp.employeeId === id ? newEmployee : emp)),
+        );
         setEditForm(false);
+        console.log("Employee data updated successfully!")
       }
     } catch (err) {
-      console.log("Update failed", err);
+      console.error("Update failed", err);
     }
   };
-  console.log("Employee Updated!!! ", data);
 
   const handleEditForm = (_, d) => {
     setEditForm(true);
@@ -106,15 +113,14 @@ const EmployeesList = () => {
         </div>
 
         {/* Employee Cards OR Empty State */}
-        {data.length > 0 ? (
+        {Array.isArray(data) && data.length > 0 ? (
           <div className="space-y-6">
             {data.map((d) => (
               <Employee
-                key={d.id}
+                key={d.employeeId}
                 {...d}
-                onDelete={() => handleDelete(d.id)}
+                onDelete={() => handleDelete(d.employeeId)}
                 onEdit={() => {
-                  console.log("ONEDIT CALLED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                   // handleUpdate(d.id);
                   handleEditForm(true, d);
                 }}
@@ -132,17 +138,12 @@ const EmployeesList = () => {
       </div>
       {showForm && (
         <Modal heading="Add Employee" onClose={onClose}>
-          {<AddEmployeeForm onAdd={handleAdd} />}
+          {<AddEmployeeForm onAdd={handleAdd} length={data.length} />}
         </Modal>
       )}
       {editForm && (
         <Modal heading="Update Employee" onClose={onClose}>
-          {
-            <EditEmployeeForm
-              onEdit={handleUpdate}
-              employee={employee}
-            />
-          }
+          {<EditEmployeeForm onEdit={handleUpdate} employee={employee} />}
         </Modal>
       )}
     </div>
