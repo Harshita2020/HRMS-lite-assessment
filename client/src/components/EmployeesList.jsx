@@ -69,13 +69,13 @@ const EmployeesList = () => {
         },
         body: JSON.stringify(newEmployee),
       });
-
+      const data = await res.json();
       if (res.ok) {
         setData((prev) =>
           prev.map((emp) => (emp.employeeId === id ? newEmployee : emp)),
         );
         setEditForm(false);
-        console.log("Employee data updated successfully!")
+        console.log(data.message)
       }
     } catch (err) {
       console.error("Update failed", err);
