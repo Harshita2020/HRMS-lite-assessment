@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import Employee from "./models/Employee.js";
+import Attendance from "./models/Attendance.js";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
+//// Employee Routes
 //GET
 
 app.get("/employees", async (req, res) => {
@@ -101,5 +103,100 @@ app.delete("/employees/:employeeId", async (req, res) => {
       .json({ message: "Employee record deleted successfully!" });
   }
 });
+
+//// Employee Routes
+
+//// Attendance Routes
+
+//Get
+app.get("/attendance", async (req, res) => {
+  try {
+    const attendance = await Attendance.find();
+    res.status(200).json({
+      success: true,
+      data: attendance,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch attendance records",
+      error: error.message,
+    });
+  }
+});
+
+//GET BY ID
+
+app.get("/attendance/:employeeId", async (req, res) => {
+  try {
+    const id = Number(req.params.employeeId);
+
+    let foundRecord = await Attendance.findOne({ employeeId: id });
+    if (!foundRecord) {
+      res.status(404).json({ message: "404 not found!" });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "Attendance record found successfully!",
+        data: foundRecord,
+      });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        status: false,
+        message: "Failed to fetch attendance record",
+        error: error.message,
+      });
+  }
+});
+
+//POST
+app.post("/attendance", async (req, res) => {
+  try {
+    const attendance = new Attendance(req.body);
+    const savedAttendance = await attendance.save();
+
+    res.status(201).json({
+      mesasge: "Attendance record created successfully!",
+      success: true,
+      data: savedAttendance,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to create attendance record",
+      error: error.message,
+    });
+  }
+});
+
+//PUT
+
+app.put("/attendance/:employeeId", async (req, res) => {
+  try {
+    const id = Number(req.params.employeeId);
+    const data = new Attendance(req.body);
+    let updatedAttendanceRecord = await Attendance.findOneAndUpdate({ employeeId: id, }, data, { returnDocument: "after" });
+
+    if (!updatedAttendanceRecord) {
+      res.status(404).json({ success: false, message: "404 not found!" });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "Attendance Record updated successfully!",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      mesasge: "Failed to update attendance record",
+      error: error.message,
+    });
+  }
+});
+
+//// Attendance Routes
 
 startServer();
