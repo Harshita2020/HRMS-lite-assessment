@@ -197,6 +197,29 @@ app.put("/attendance/:employeeId", async (req, res) => {
   }
 });
 
+//DELETE
+app.delete("/attendance/:employeeId", async (req, res) => {
+  try {
+    const id = Number(req.params.employeeId);
+    let deletedAttendanceRecord = await Attendance.findOneAndDelete({ employeeId: id });  
+    
+    if(!deletedAttendanceRecord){
+      res.status(404).json({success: false, message: "Attendance Record not found!"})
+    } else{
+      res.status(200).json({
+        success: true,
+        message: "Attendance Record deleted successfully!",
+      })
+    }
+    } catch (error){
+      res.status(500).json({
+        status: false,
+        message: "Failed to delete attendance record",
+        error: error.message,
+      })
+    }
+  })
+
 //// Attendance Routes
 
 startServer();
