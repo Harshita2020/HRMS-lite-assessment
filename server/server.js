@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import Employee from "./models/Employee.js";
 import Attendance from "./models/Attendance.js";
+import { formattedDate } from "./utils/formatters.js";
 
 dotenv.config();
 
@@ -142,13 +143,11 @@ app.get("/attendance/:employeeId", async (req, res) => {
       });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        status: false,
-        message: "Failed to fetch attendance record",
-        error: error.message,
-      });
+    res.status(500).json({
+      status: false,
+      message: "Failed to fetch attendance record",
+      error: error.message,
+    });
   }
 });
 
@@ -177,8 +176,12 @@ app.post("/attendance", async (req, res) => {
 app.put("/attendance/:employeeId", async (req, res) => {
   try {
     const id = Number(req.params.employeeId);
-    const data = new Attendance(req.body);
-    let updatedAttendanceRecord = await Attendance.findOneAndUpdate({ employeeId: id, }, data, { returnDocument: "after" });
+    const date = formattedDate(req.body.date);
+    let updatedAttendanceRecord = await Attendance.findOneAndUpdate(
+      { employeeId: id, date: date },
+      req.body,
+      { returnDocument: "after" },
+    );
 
     if (!updatedAttendanceRecord) {
       res.status(404).json({ success: false, message: "404 not found!" });
@@ -201,24 +204,28 @@ app.put("/attendance/:employeeId", async (req, res) => {
 app.delete("/attendance/:employeeId", async (req, res) => {
   try {
     const id = Number(req.params.employeeId);
-    let deletedAttendanceRecord = await Attendance.findOneAndDelete({ employeeId: id });  
-    
-    if(!deletedAttendanceRecord){
-      res.status(404).json({success: false, message: "Attendance Record not found!"})
-    } else{
+    let deletedAttendanceRecord = await Attendance.findOneAndDelete({
+      employeeId: id,
+    });
+
+    if (!deletedAttendanceRecord) {
+      res
+        .status(404)
+        .json({ success: false, message: "Attendance Record not found!" });
+    } else {
       res.status(200).json({
         success: true,
         message: "Attendance Record deleted successfully!",
-      })
+      });
     }
-    } catch (error){
-      res.status(500).json({
-        status: false,
-        message: "Failed to delete attendance record",
-        error: error.message,
-      })
-    }
-  })
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Failed to delete attendance record",
+      error: error.message,
+    });
+  }
+});
 
 //// Attendance Routes
 

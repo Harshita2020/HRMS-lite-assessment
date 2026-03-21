@@ -3,12 +3,15 @@ import Employee from "./Employee";
 import AddEmployeeForm from "./AddEmployeeForm";
 import Modal from "./Modal";
 import EditEmployeeForm from "./EditEmployeeForm";
+import MarkAttendanceForm from "./MarkAttendanceForm";
 
 const EmployeesList = () => {
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editForm, setEditForm] = useState(false);
+  const [markAttendanceForm, setMarkAttendanceForm] = useState(false);
   const [employee, setEmployee] = useState({});
+  const [attendanceData, setAttendanceData] = useState({});
 
   useEffect(() => {
     fetch("http://localhost:3000/employees")
@@ -18,11 +21,10 @@ const EmployeesList = () => {
   }, []);
   const fetchData = () => {
     fetch("http://localhost:3000/employees")
-    .then((res) => res.json())
-    .then((d) => setData(d.data))
-    .catch((err) => console.error("ERROR!!!", err));
+      .then((res) => res.json())
+      .then((d) => setData(d.data))
+      .catch((err) => console.error("ERROR!!!", err));
   };
-
 
   const handleDelete = async (id) => {
     try {
@@ -49,7 +51,6 @@ const EmployeesList = () => {
       });
 
       if (res.ok) {
-        
         setData((prev) => [...prev, newEmployee]);
         setShowForm(false);
         fetchData();
@@ -75,10 +76,33 @@ const EmployeesList = () => {
           prev.map((emp) => (emp.employeeId === id ? newEmployee : emp)),
         );
         setEditForm(false);
-        console.log(data.message)
+        console.log(data.message);
       }
     } catch (err) {
       console.error("Update failed", err);
+    }
+  };
+
+  const handleMarkAttendance = async (newEmployee) => {
+    try {
+      const id = employee.employeeId;
+      const res = await fetch(`http://localhost:3000/attendance/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newEmployee),
+      });
+      const data = await res.json();
+      console.log("RESUKT ", data);
+      if (res.ok) {
+        (prev) =>
+          prev.map((emp) => (emp.employeeId === id ? newEmployee : emp));
+        setMarkAttendanceForm(false);
+        console.log(data.message);
+      }
+    } catch (err) {
+      console.error("Marking attendance failed", err);
     }
   };
 
@@ -89,9 +113,19 @@ const EmployeesList = () => {
   const handleShowForm = () => {
     setShowForm(true);
   };
+  const handleMarkAttendanceForm = (_, d) => {
+    setMarkAttendanceForm(true);
+    setEmployee(d);
+  };
 
   const onClose = () => {
     setShowForm(false);
+  };
+  const onCloseEditForm = () => {
+    setEditForm(false);
+  };
+  const onCloseMarkAttendanceForm = () => {
+    setMarkAttendanceForm(false);
   };
 
   return (
@@ -124,6 +158,9 @@ const EmployeesList = () => {
                   // handleUpdate(d.id);
                   handleEditForm(true, d);
                 }}
+                onMarkAttendance={() => {
+                  handleMarkAttendanceForm(true, d);
+                }}
               />
             ))}
           </div>
@@ -142,8 +179,18 @@ const EmployeesList = () => {
         </Modal>
       )}
       {editForm && (
-        <Modal heading="Update Employee" onClose={onClose}>
+        <Modal heading="Update Employee" onClose={onCloseEditForm}>
           {<EditEmployeeForm onEdit={handleUpdate} employee={employee} />}
+        </Modal>
+      )}
+      {markAttendanceForm && (
+        <Modal heading="Mark Attendance" onClose={onCloseMarkAttendanceForm}>
+          {
+            <MarkAttendanceForm
+              onMarkAttendance={handleMarkAttendance}
+              employee={employee}
+            />
+          }
         </Modal>
       )}
     </div>
