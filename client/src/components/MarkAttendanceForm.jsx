@@ -27,8 +27,8 @@ const MarkAttendanceForm = ({ onMarkAttendance, employee }) => {
     };
     onMarkAttendance(attendanceRecord);
     setFormData({
-      date: "",
-      status: "Present",
+      date: formData.date,
+      status: formData.status,
     });
   };
 

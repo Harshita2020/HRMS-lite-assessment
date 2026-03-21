@@ -82,10 +82,8 @@ const EmployeesList = () => {
       console.error("Update failed", err);
     }
   };
-
-  const handleMarkAttendance = async (newEmployee) => {
+  const putAttendance = async (newEmployee, id) => {
     try {
-      const id = employee.employeeId;
       const res = await fetch(`http://localhost:3000/attendance/${id}`, {
         method: "PUT",
         headers: {
@@ -93,14 +91,39 @@ const EmployeesList = () => {
         },
         body: JSON.stringify(newEmployee),
       });
-      const data = await res.json();
-      console.log("RESUKT ", data);
-      if (res.ok) {
-        (prev) =>
-          prev.map((emp) => (emp.employeeId === id ? newEmployee : emp));
-        setMarkAttendanceForm(false);
-        console.log(data.message);
+      return res;
+    } catch (err) {
+      console.error("Marking attendance failed", err);
+    }
+  }
+  const postAttendance = async (newEmployee) => {
+    try {
+      // const id = employee.employeeId;
+      const res = await fetch(`http://localhost:3000/attendance`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newEmployee),
+      });
+      return res;
+    } catch (err) {
+      console.error("Marking attendance failed", err);
+    }
+  }
+  const handleMarkAttendance = async (attendanceData) => {
+    try {
+      console.log("ATT DATA- ", attendanceData)
+      const id = employee.employeeId;
+      let res = await postAttendance(attendanceData);
+      if (!res.ok) {
+         res = await putAttendance(attendanceData, id);
       }
+      const data = await res.json();
+      if (res.ok) {
+        setAttendanceData((prev) => ({ ...prev, [id]: data.data }));   
+        setMarkAttendanceForm(false);
+        console.log(data.message);}
     } catch (err) {
       console.error("Marking attendance failed", err);
     }
