@@ -4,6 +4,8 @@ import AddEmployeeForm from "./AddEmployeeForm";
 import Modal from "./Modal";
 import EditEmployeeForm from "./EditEmployeeForm";
 import MarkAttendanceForm from "./MarkAttendanceForm";
+// import { set } from "mongoose";
+import ViewAttendance from "./ViewAttendance";
 
 const EmployeesList = () => {
   const [data, setData] = useState([]);
@@ -12,6 +14,7 @@ const EmployeesList = () => {
   const [markAttendanceForm, setMarkAttendanceForm] = useState(false);
   const [employee, setEmployee] = useState({});
   const [attendanceData, setAttendanceData] = useState({});
+  const [showAttendanceTable, setShowAttendanceTable] = useState(false);
 
   useEffect(() => {
     fetch("http://localhost:3000/employees")
@@ -95,7 +98,7 @@ const EmployeesList = () => {
     } catch (err) {
       console.error("Marking attendance failed", err);
     }
-  }
+  };
   const postAttendance = async (newEmployee) => {
     try {
       // const id = employee.employeeId;
@@ -110,20 +113,21 @@ const EmployeesList = () => {
     } catch (err) {
       console.error("Marking attendance failed", err);
     }
-  }
+  };
   const handleMarkAttendance = async (attendanceData) => {
     try {
-      console.log("ATT DATA- ", attendanceData)
+      console.log("ATT DATA- ", attendanceData);
       const id = employee.employeeId;
       let res = await postAttendance(attendanceData);
       if (!res.ok) {
-         res = await putAttendance(attendanceData, id);
+        res = await putAttendance(attendanceData, id);
       }
       const data = await res.json();
       if (res.ok) {
-        setAttendanceData((prev) => ({ ...prev, [id]: data.data }));   
+        setAttendanceData((prev) => ({ ...prev, [id]: data.data }));
         setMarkAttendanceForm(false);
-        console.log(data.message);}
+        console.log(data.message);
+      }
     } catch (err) {
       console.error("Marking attendance failed", err);
     }
@@ -136,9 +140,19 @@ const EmployeesList = () => {
   const handleShowForm = () => {
     setShowForm(true);
   };
+  const handleViewAttendanceTable = () => {
+    setShowAttendanceTable(true);
+    handleViewAttendance();
+  };
   const handleMarkAttendanceForm = (_, d) => {
     setMarkAttendanceForm(true);
     setEmployee(d);
+  };
+  const handleViewAttendance = () => {
+    fetch("http://localhost:3000/attendance")
+      .then((res) => res.json())
+      .then((d) => setAttendanceData(d.data))
+      .catch((err) => console.error("ERROR!!!", err));
   };
 
   const onClose = () => {
@@ -160,13 +174,23 @@ const EmployeesList = () => {
         </h1>
 
         {/* Add Button */}
-        <div className="flex justify-start mb-8">
-          <button
-            className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded-lg shadow-sm transition cursor-pointer"
-            onClick={handleShowForm}
-          >
-            Add Employee
-          </button>
+        <div className="flex justify-left mb-2 space-x-4">
+          <div className="flex justify-start mb-8">
+            <button
+              className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded-lg shadow-sm transition cursor-pointer"
+              onClick={handleShowForm}
+            >
+              Add Employee
+            </button>
+          </div>
+          <div className="flex justify-start mb-8">
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg shadow-sm transition cursor-pointer"
+              onClick={handleViewAttendanceTable}
+            >
+              View Attendance
+            </button>
+          </div>
         </div>
 
         {/* Employee Cards OR Empty State */}
@@ -214,6 +238,14 @@ const EmployeesList = () => {
               employee={employee}
             />
           }
+        </Modal>
+      )}
+      {showAttendanceTable && (
+        <Modal
+          heading="Attendance Records"
+          onClose={() => setShowAttendanceTable(false)}
+        >
+          <ViewAttendance attendance={attendanceData} />
         </Modal>
       )}
     </div>
