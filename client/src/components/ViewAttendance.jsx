@@ -1,71 +1,62 @@
 import React from "react";
 
-const ViewAttendance = ({ attendance }) => {
-  console.log("Att data- ", attendance);
-  const sortedDates = Object.keys(attendance)
-    .filter((date) => attendance[date]?.length > 0) // skip empty
-    .sort((a, b) => new Date(b) - new Date(a)); // latest first
-  console.log("sortedDates--- ", sortedDates)
+const ViewAttendance = ({ attendance, employees }) => {
+  const sortedAttendance =
+    attendance.length > 0
+      ? [...attendance].sort((a, b) => new Date(b.date) - new Date(a.date))
+      : [];
+  const employeeMap = employees.reduce((map, emp) => {
+    map[emp.employeeId] = emp.name;
+    return map;
+  }, {});
+
+  sortedAttendance.forEach((record) => {
+    record.name = employeeMap[record.employeeId] || "Unknown";
+  });
+  const statusStyles = {
+    Present: "bg-green-100 text-green-700",
+    Absent: "bg-red-100 text-red-700",
+    Leave: "bg-yellow-100 text-yellow-700",
+  };
+
   return (
-    <div>
-      {sortedDates.map((date) => (
-        <div key={date} style={{ marginBottom: "20px" }}>
-          {/* Date Header */}
-          <h3>📅 {date}</h3>
-
-          {/* Table */}
-          <table border="1" cellPadding="8" style={{ width: "100%" }}>
-            <thead>
-              <tr>
-                <th>Employee ID</th>
-                <th>Status</th>
+    <div className="w-full h-96 overflow-auto">
+      {sortedAttendance && sortedAttendance.length > 0 ? (
+        <table className="min-w-full h-full overflow-scroll">
+          <thead>
+            <tr className="sticky top-0 z-100 bg-blue-300">
+              <th className="py-2 px-4 border-b">ID</th>
+              <th className="py-2 px-4 border-b">Name</th>
+              <th className="py-2 px-4 border-b">Date</th>
+              <th className="py-2 px-4 border-b">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedAttendance.map((record) => (
+              <tr key={record._id} className="border-b hover:bg-gray-50 transition">
+                <td className="py-2 px-4 border-b">{record.employeeId}</td>
+                <td className="py-2 px-4 border-b">{record.name}</td>
+                <td className="py-2 px-4 border-b">
+                  {new Date(record.date).toLocaleDateString()}
+                </td>
+                <td className="px-4 py-2">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${statusStyles[record.status]}`}
+                  >
+                    {record.status}
+                  </span>
+                </td>{" "}
               </tr>
-            </thead>
-
-            <tbody>
-              {attendance[date].map((emp) => (
-                <tr key={emp._id}>
-                  <td>{emp.employeeId}</td>
-                  <td>
-                    {emp.status === "Present" && "🟢 Present"}
-                    {emp.status === "Absent" && "🔴 Absent"}
-                    {emp.status === "Leave" && "🟡 Leave"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ))}
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="text-center text-gray-500">
+          No attendance records found.
+        </p>
+      )}
     </div>
   );
-  // console.log("FILTERED!- ", filteredAttendanceByDate)
-  // return (
-  //   <>
-  //     {filteredAttendanceByDate && filteredAttendanceByDate.length > 0 ?
-  //     <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
-  //       <thead>
-  //         <tr>
-  //           <th className="py-2 px-4 border-b">Employee ID</th>
-  //           <th className="py-2 px-4 border-b">Date</th>
-  //           <th className="py-2 px-4 border-b">Status</th>
-  //         </tr>
-  //       </thead>
-  //       <tbody>
-  //         {filteredAttendanceByDate.map((record) => (
-  //           <tr key={record._id}>
-  //             <td className="py-2 px-4 border-b">{record.employeeId}</td>
-  //             <td className="py-2 px-4 border-b">
-  //               {new Date(record.date).toLocaleDateString()}
-  //             </td>
-  //             <td className="py-2 px-4 border-b">{record.status}</td>
-  //           </tr>
-  //         ))}
-  //       </tbody>
-  //     </table> :
-  //      <p className="text-center text-gray-500">No attendance records found.</p>}
-  //   </>
-  // );
 };
 
 export default ViewAttendance;

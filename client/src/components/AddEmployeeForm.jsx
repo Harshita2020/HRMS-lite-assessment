@@ -3,11 +3,11 @@ import React, { useState } from "react";
 const AddEmployeeForm = ({ onAdd, length }) => {
   console.log("LENGTH??? ", length);
   const [formData, setFormData] = useState({
-    employeeId: length ? length + 1 : 21,
-    fullName: `Temp ${length ? length + 1 : 21}`,
-    age: 14,
-    department: "Employee",
-    salary: 10000,
+    employeeId: "",
+    fullName: "",
+    age: "18",
+    department: "",
+    salary: "",
   });
 
   const handleChange = (e) => {
@@ -17,10 +17,14 @@ const AddEmployeeForm = ({ onAdd, length }) => {
       [id]: value,
     }));
   };
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    
+    if(Number(formData.age) < 18){
+      alert("Employee must be at least 18 years old.");
+      return;
+    }
     const newEmployee = {
       employeeId: formData.employeeId,
       name: formData.fullName,
@@ -33,11 +37,11 @@ const AddEmployeeForm = ({ onAdd, length }) => {
     onAdd(newEmployee);
 
     setFormData({
-      employeeId: length ? length + 1 : 11,
-      fullName: "Temp",
-      age: 14,
-      department: "Employee",
-      salary: 10000,
+      employeeId: "",
+      fullName: "",
+      age: "18",
+      department: "",
+      salary: "",
     });
   };
 
@@ -71,11 +75,11 @@ const AddEmployeeForm = ({ onAdd, length }) => {
             id="age"
             value={formData.age}
             onChange={handleChange}
-            min={0}
+            min={18}
             max={100}
             required
             className="w-full p-2 border rounded-md"
-            placeholder="Enter Age"
+            placeholder="Enter Age (18+)"
           />
         </div>
 

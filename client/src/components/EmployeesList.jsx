@@ -13,9 +13,10 @@ const EmployeesList = () => {
   const [editForm, setEditForm] = useState(false);
   const [markAttendanceForm, setMarkAttendanceForm] = useState(false);
   const [employee, setEmployee] = useState({});
-  const [attendanceData, setAttendanceData] = useState({});
+  const [attendanceData, setAttendanceData] = useState([]);
   const [showAttendanceTable, setShowAttendanceTable] = useState(false);
 
+  console.log("DATA-- ? ", data)
   useEffect(() => {
     fetch("http://localhost:3000/employees")
       .then((res) => res.json())
@@ -245,7 +246,7 @@ const EmployeesList = () => {
           heading="Attendance Records"
           onClose={() => setShowAttendanceTable(false)}
         >
-          <ViewAttendance attendance={attendanceData} />
+          <ViewAttendance attendance={attendanceData} employees={data}/>
         </Modal>
       )}
     </div>

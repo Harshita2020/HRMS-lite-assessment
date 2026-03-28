@@ -9,7 +9,7 @@ const Modal = ({ heading, onClose, children }) => {
     >
       {/* CONTAINER */}
       <div
-        className="border-black bg-white text-black rounded-xl shadow-lg p-6 w-full max-w-md relative"
+        className="border-black bg-white text-black rounded-xl shadow-lg p-6 w-full max-w-lg relative"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-row justify-between my-2 py-2 border-b-black">
