@@ -15,16 +15,21 @@ const EmployeesList = () => {
   const [employee, setEmployee] = useState({});
   const [attendanceData, setAttendanceData] = useState([]);
   const [showAttendanceTable, setShowAttendanceTable] = useState(false);
+  const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3000";
+  const EMPLOYEE_URL = `${BASE_URL}/employees`;
+  const ATTENDANCE_URL = `${BASE_URL}/attendance`;
 
   console.log("DATA-- ? ", data)
+  console.log("BASE_URL:", import.meta.env.VITE_BASE_URL);
   useEffect(() => {
-    fetch("http://localhost:3000/employees")
+    // fetch("http://localhost:3000/employees")
+    fetch(`${EMPLOYEE_URL}`)
       .then((res) => res.json())
       .then((d) => setData(d.data))
       .catch((err) => console.error("ERROR!!!", err));
   }, []);
   const fetchData = () => {
-    fetch("http://localhost:3000/employees")
+    fetch(EMPLOYEE_URL)
       .then((res) => res.json())
       .then((d) => setData(d.data))
       .catch((err) => console.error("ERROR!!!", err));
@@ -32,7 +37,7 @@ const EmployeesList = () => {
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`http://localhost:3000/employees/${id}`, {
+      const res = await fetch(`${EMPLOYEE_URL}/${id}`, {
         method: "DELETE",
       });
 
@@ -46,7 +51,7 @@ const EmployeesList = () => {
 
   const handleAdd = async (newEmployee) => {
     try {
-      const res = await fetch("http://localhost:3000/employees", {
+      const res = await fetch(EMPLOYEE_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,7 +72,7 @@ const EmployeesList = () => {
   const handleUpdate = async (newEmployee) => {
     try {
       const id = employee.employeeId;
-      const res = await fetch(`http://localhost:3000/employees/${id}`, {
+      const res = await fetch(`${EMPLOYEE_URL}/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -88,7 +93,7 @@ const EmployeesList = () => {
   };
   const putAttendance = async (newEmployee, id) => {
     try {
-      const res = await fetch(`http://localhost:3000/attendance/${id}`, {
+      const res = await fetch(`${ATTENDANCE_URL}/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -103,7 +108,7 @@ const EmployeesList = () => {
   const postAttendance = async (newEmployee) => {
     try {
       // const id = employee.employeeId;
-      const res = await fetch(`http://localhost:3000/attendance`, {
+      const res = await fetch(ATTENDANCE_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -150,7 +155,7 @@ const EmployeesList = () => {
     setEmployee(d);
   };
   const handleViewAttendance = () => {
-    fetch("http://localhost:3000/attendance")
+    fetch(ATTENDANCE_URL)
       .then((res) => res.json())
       .then((d) => setAttendanceData(d.data))
       .catch((err) => console.error("ERROR!!!", err));

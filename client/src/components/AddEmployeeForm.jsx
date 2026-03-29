@@ -3,7 +3,7 @@ import React, { useState } from "react";
 const AddEmployeeForm = ({ onAdd, length }) => {
   console.log("LENGTH??? ", length);
   const [formData, setFormData] = useState({
-    employeeId: "",
+    employeeId: length ? length + 1 : 101,
     fullName: "",
     age: "18",
     department: "",
@@ -37,7 +37,7 @@ const AddEmployeeForm = ({ onAdd, length }) => {
     onAdd(newEmployee);
 
     setFormData({
-      employeeId: "",
+      employeeId: length ? length + 1 : 101,
       fullName: "",
       age: "18",
       department: "",
