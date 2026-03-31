@@ -6,9 +6,11 @@ import EditEmployeeForm from "./EditEmployeeForm";
 import MarkAttendanceForm from "./MarkAttendanceForm";
 // import { set } from "mongoose";
 import ViewAttendance from "./ViewAttendance";
+import Shimmer from "./Shimmer";
 
 const EmployeesList = () => {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editForm, setEditForm] = useState(false);
   const [markAttendanceForm, setMarkAttendanceForm] = useState(false);
@@ -19,14 +21,19 @@ const EmployeesList = () => {
   const EMPLOYEE_URL = `${BASE_URL}/employees`;
   const ATTENDANCE_URL = `${BASE_URL}/attendance`;
 
-  console.log("DATA-- ? ", data)
+  console.log("DATA-- ? ", data);
   console.log("BASE_URL:", import.meta.env.VITE_BASE_URL);
   useEffect(() => {
-    // fetch("http://localhost:3000/employees")
-    fetch(`${EMPLOYEE_URL}`)
-      .then((res) => res.json())
-      .then((d) => setData(d.data))
-      .catch((err) => console.error("ERROR!!!", err));
+    try {
+      fetch(`${EMPLOYEE_URL}`)
+        .then((res) => res.json())
+        .then((d) => setData(d.data))
+        .catch((err) => console.error("ERROR!!!", err));
+    } catch (err) {
+      console.error("Fetch failed", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
   const fetchData = () => {
     fetch(EMPLOYEE_URL)
@@ -200,7 +207,9 @@ const EmployeesList = () => {
         </div>
 
         {/* Employee Cards OR Empty State */}
-        {Array.isArray(data) && data.length > 0 ? (
+        {loading ? (
+          <Shimmer />
+        ) : Array.isArray(data) && data.length > 0 ? (
           <div className="space-y-6">
             {data.map((d) => (
               <Employee
@@ -251,7 +260,7 @@ const EmployeesList = () => {
           heading="Attendance Records"
           onClose={() => setShowAttendanceTable(false)}
         >
-          <ViewAttendance attendance={attendanceData} employees={data}/>
+          <ViewAttendance attendance={attendanceData} employees={data} />
         </Modal>
       )}
     </div>
