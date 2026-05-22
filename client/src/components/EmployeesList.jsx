@@ -23,18 +23,48 @@ const EmployeesList = () => {
 
   console.log("DATA-- ? ", data);
   console.log("BASE_URL:", import.meta.env.VITE_BASE_URL);
+  // useEffect(() => {
+
+  //   try {
+  //     fetch(`${EMPLOYEE_URL}`)
+  //       .then((res) => res.json())
+  //       .then((d) => setData(d.data))
+  //       .catch((err) => console.error("ERROR!!!", err));
+  //   } catch (err) {
+  //     console.error("Fetch failed", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, []);
+
+
   useEffect(() => {
+  const fetchEmployees = async () => {
     try {
-      fetch(`${EMPLOYEE_URL}`)
-        .then((res) => res.json())
-        .then((d) => setData(d.data))
-        .catch((err) => console.error("ERROR!!!", err));
+      setLoading(true);
+
+      const res = await fetch(EMPLOYEE_URL);
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch employees");
+      }
+
+      const d = await res.json();
+
+      console.log("API RESPONSE:", d);
+
+      setData(d.data || []);
     } catch (err) {
-      console.error("Fetch failed", err);
+      console.error("ERROR!!!", err);
+      setData([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
+
+  fetchEmployees();
+}, []);
+
   const fetchData = () => {
     fetch(EMPLOYEE_URL)
       .then((res) => res.json())
